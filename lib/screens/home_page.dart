@@ -30,47 +30,53 @@ class _MyHomePageState extends StateMVC<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        itemCount: _con.notesList.length
-        // 2
-        ,
-        itemBuilder: (context, index) => ListTile(
-          visualDensity: VisualDensity.comfortable,
-          title: Text(_con.notesList[index].noteTitle
-              // "Note title"
-              ),
-          subtitle: Text(_con.notesList[index].noteDetails),
-          leading: IconButton(
-            icon: Icon(Icons.edit_outlined,
-                color: Theme.of(context).primaryColor),
-            tooltip: "Edit this note",
-            onPressed: () {
-              _con.editNote();
+      body: RefreshIndicator(
+        onRefresh: _con.onRefreshPage,
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          itemCount: _con.notesList.length
+          // 2
+          ,
+          itemBuilder: (context, index) => ListTile(
+            visualDensity: VisualDensity.comfortable,
+            title: Text(_con.notesList[index].noteTitle
+                // "Note title"
+                ),
+            subtitle: Text(_con.notesList[index].noteDetails),
+            leading: IconButton(
+              icon: Icon(Icons.edit_outlined,
+                  color: Theme.of(context).primaryColor),
+              tooltip: "Edit this note",
+              onPressed: () {
+                _con.editNote(context: context, note: _con.notesList[index]);
+              },
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete_forever, color: Colors.red),
+              tooltip: "Remove this note",
+              onPressed: () {
+                _con.removeNote(index);
+              },
+            ),
+            onLongPress: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Tap here to show details of this note")));
+            },
+            onTap: () {
+              _con.viewNoteDetails(
+                  _con.notesList[index].id,
+                  _con.notesList[index].noteTitle,
+                  _con.notesList[index].noteDetails,
+                  context);
             },
           ),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete_forever, color: Colors.red),
-            tooltip: "Remove this note",
-            onPressed: () {
-              _con.removeNote(index);
-            },
-          ),
-          onLongPress: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Show details of this note")));
-          },
-          onTap: () {
-            _con.viewNoteDetails(
-                _con.notesList[index].id,
-                _con.notesList[index].noteTitle,
-                _con.notesList[index].noteDetails,
-                context);
-          },
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _con.addNote
+        onPressed: () {
+          _con.addNote(context: context);
+        }
         // _incrementCounter
         ,
         tooltip: 'Add a new note',
@@ -78,4 +84,5 @@ class _MyHomePageState extends StateMVC<MyHomePage> {
       ),
     );
   }
+
 }

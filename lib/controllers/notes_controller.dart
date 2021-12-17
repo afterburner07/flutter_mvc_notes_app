@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_mvc_notes_app/models/notes_model.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
@@ -26,12 +24,147 @@ class ControllerNotes extends ControllerMVC {
     ];
   }
 
-  void addNote() {
-    print("Add note functionality");
+  void addNote({required BuildContext context}) async {
+    await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: const Text("Add a note"),
+              actions: [
+                TextButton(
+                  child: const Text("Cancel"),
+                  style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      visualDensity: VisualDensity.comfortable),
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                ),
+                TextButton.icon(
+                  icon: const Icon(Icons.edit_outlined, color: Colors.white),
+                  label: const Text(
+                    "Add a note",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: TextButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      visualDensity: VisualDensity.standard,
+                      backgroundColor: Theme.of(context).primaryColor),
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                )
+              ],
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: _model.noteTitleController,
+                      cursorColor: Theme.of(context).primaryColor,
+                      decoration: InputDecoration(
+                          labelText: "Note title",
+                          labelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor)),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _model.noteContentController,
+                      cursorColor: Theme.of(context).primaryColor,
+                      minLines: 2,
+                      maxLines: 10,
+                      decoration: InputDecoration(
+                          labelText: "Note content",
+                          labelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor)),
+                    )
+                  ],
+                ),
+              ),
+            )).then((value) {
+      if (value != null) {
+        if (value) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("Note added")));
+        }
+      }
+    });
   }
 
-  void editNote() {
-    print("Edit note functionality");
+  void editNote(
+      {required BuildContext context, required ModelNotes note}) async {
+    note.noteTitleController.text = note.noteTitle;
+    note.noteContentController.text = note.noteDetails;
+    await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: const Text("Edit note"),
+              actions: [
+                TextButton(
+                  child: const Text("Cancel"),
+                  style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      visualDensity: VisualDensity.comfortable),
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                ),
+                TextButton.icon(
+                  icon: const Icon(Icons.edit_outlined, color: Colors.white),
+                  label: const Text(
+                    "Save",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: TextButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      visualDensity: VisualDensity.standard,
+                      backgroundColor: Theme.of(context).primaryColor),
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                )
+              ],
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: note.noteTitleController,
+                      cursorColor: Theme.of(context).primaryColor,
+                      decoration: InputDecoration(
+                          labelText: "Note title",
+                          labelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor)),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: note.noteContentController,
+                      cursorColor: Theme.of(context).primaryColor,
+                      minLines: 2,
+                      maxLines: 10,
+                      decoration: InputDecoration(
+                          labelText: "Note content",
+                          labelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor)),
+                    )
+                  ],
+                ),
+              ),
+            )).then((value) {
+      if (value != null) {
+        if (value) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("Note edited!")));
+        }
+      }
+    });
   }
 
   void removeNote(int index) {
@@ -76,5 +209,9 @@ class ControllerNotes extends ControllerMVC {
                 ],
               ),
             ));
+  }
+
+  Future<void> onRefreshPage() async {
+    await Future.delayed(const Duration(seconds: 1));
   }
 }
