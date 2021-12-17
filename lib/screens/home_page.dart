@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mvc_notes_app/controllers/notes_controller.dart';
+import 'package:flutter_mvc_notes_app/repositories/notes_repository.dart'
+    as notes_repository;
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -22,6 +24,12 @@ class _MyHomePageState extends StateMVC<MyHomePage> {
   void initState() {
     super.initState();
     _con.initState();
+    getNotesList();
+  }
+
+  void getNotesList() async {
+    _con.notesApi = await notes_repository.getNotesListFromAPI(context);
+    setState(() {});
   }
 
   @override
@@ -31,24 +39,34 @@ class _MyHomePageState extends StateMVC<MyHomePage> {
         title: Text(widget.title),
       ),
       body: RefreshIndicator(
-        onRefresh: _con.onRefreshPage,
+        onRefresh: () async {
+          getNotesList();
+        },
         child: ListView.builder(
           padding: const EdgeInsets.symmetric(vertical: 15),
-          itemCount: _con.notesList.length
+          // itemCount: _con.notesList.length
+          itemCount:
+              _con.notesApi.notes == null ? 0 : _con.notesApi.notes!.length
           // 2
           ,
           itemBuilder: (context, index) => ListTile(
             visualDensity: VisualDensity.comfortable,
-            title: Text(_con.notesList[index].noteTitle
-                // "Note title"
-                ),
-            subtitle: Text(_con.notesList[index].noteDetails),
+            title: Text(
+              // _con.notesList[index].noteTitle
+              _con.notesApi.notes![index].noteTitle!,
+              // "Note title"
+            ),
+            subtitle: Text(
+                // _con.notesList[index].noteDetails),
+                _con.notesApi.notes![index].noteDetails!),
             leading: IconButton(
               icon: Icon(Icons.edit_outlined,
                   color: Theme.of(context).primaryColor),
               tooltip: "Edit this note",
               onPressed: () {
-                _con.editNote(context: context, note: _con.notesList[index]);
+                // _con.editNote(context: context, note: _con.notesList[index]);
+                _con.editNote(
+                    context: context, note: _con.notesApi.notes![index]);
               },
             ),
             trailing: IconButton(
@@ -84,5 +102,4 @@ class _MyHomePageState extends StateMVC<MyHomePage> {
       ),
     );
   }
-
 }

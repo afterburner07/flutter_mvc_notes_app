@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mvc_notes_app/models/note.dart';
+import 'package:flutter_mvc_notes_app/models/notes_api.dart';
 import 'package:flutter_mvc_notes_app/models/notes_model.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
@@ -11,6 +13,7 @@ class ControllerNotes extends ControllerMVC {
   late ModelNotes _model;
   List<ModelNotes> notesList = [];
   StateMVC<StatefulWidget>? get stateMVC => null;
+  NotesApi notesApi = NotesApi();
   @override
   void initState() {
     _model = ModelNotes(stateMVC);
@@ -25,6 +28,8 @@ class ControllerNotes extends ControllerMVC {
   }
 
   void addNote({required BuildContext context}) async {
+    _model.noteTitleController = TextEditingController();
+    _model.noteContentController = TextEditingController();
     await showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -95,9 +100,14 @@ class ControllerNotes extends ControllerMVC {
   }
 
   void editNote(
-      {required BuildContext context, required ModelNotes note}) async {
-    note.noteTitleController.text = note.noteTitle;
-    note.noteContentController.text = note.noteDetails;
+      {required BuildContext context,
+      // required ModelNotes note
+      required Note note}) async {
+    // note.noteTitleController.text = note.noteTitle;
+    // note.noteContentController.text = note.noteDetails;
+    _model.noteTitleController = TextEditingController(text: note.noteTitle!);
+    _model.noteContentController =
+        TextEditingController(text: note.noteDetails!);
     await showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -135,7 +145,8 @@ class ControllerNotes extends ControllerMVC {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextField(
-                      controller: note.noteTitleController,
+                      // controller: note.noteTitleController,
+                      controller: _model.noteTitleController,
                       cursorColor: Theme.of(context).primaryColor,
                       decoration: InputDecoration(
                           labelText: "Note title",
@@ -144,7 +155,8 @@ class ControllerNotes extends ControllerMVC {
                     ),
                     const SizedBox(height: 10),
                     TextField(
-                      controller: note.noteContentController,
+                      // controller: note.noteContentController,
+                      controller: _model.noteContentController,
                       cursorColor: Theme.of(context).primaryColor,
                       minLines: 2,
                       maxLines: 10,
